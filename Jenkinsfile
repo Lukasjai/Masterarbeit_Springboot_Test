@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'linux' }
+  agent { label 'windows' }
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
@@ -12,17 +12,17 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -t Lukasjai/Masterarbeit_Springboot_Test .'
+        bat 'docker build -t Lukasjai/Masterarbeit_Springboot_Test .'
       }
     }
     stage('Login') {
       steps {
-        sh 'echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com'
+        bat 'echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com'
       }
     }
     stage('Push to Heroku registry') {
       steps {
-        sh '''
+        bat '''
           docker tag Lukasjai/Masterarbeit_Springboot_Test:latest registry.heroku.com/$APP_NAME/web
           docker push registry.heroku.com/$APP_NAME/web
         '''
@@ -30,15 +30,12 @@ pipeline {
     }
     stage('Release the image') {
       steps {
-        sh '''
-          heroku container:release web --app=$APP_NAME
-        '''
-      }
+        bat "heroku container:release web --app=%APP_NAME%"      }
     }
   }
   post {
     always {
-      sh 'docker logout'
+      bat 'docker logout'
     }
   }
 }
